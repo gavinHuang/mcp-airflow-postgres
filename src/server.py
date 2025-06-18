@@ -42,7 +42,7 @@ async def failed_runs(start_time, end_time, include_exceed_max_tries:bool=False)
     # return LLM-friendly output:
     # [{"dag_id": "dag_id", "run_id": "run_id", "execution_date": "execution_date", "state": "state"}]
     failed_runs = [
-        {"dag_id": row["dag_id"], "run_id": row["run_id"], "execution_date": row["execution_date"], "state": row["state"]}
+        {"dag_id": row[0], "run_id": row[1], "execution_date": row[2], "state": row[3]}
         for row in failed_runs
     ]
     return failed_runs
