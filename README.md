@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/gavinhuang-mcp-airflow-postgres-badge.png)](https://mseep.ai/app/gavinhuang-mcp-airflow-postgres)
+
 # MCP Airflow Database
 
 A Model Context Protocol (MCP) server for interacting with Airflow databases.
