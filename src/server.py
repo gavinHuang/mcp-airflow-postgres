@@ -14,23 +14,25 @@ async def failed_runs(start_time, end_time, include_exceed_max_tries:bool=False)
     engine = create_engine(os.environ["DATABASE_URL"])        
     
     Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Query the database for failed runs
-    query = text(
-        """
-        SELECT dag_id, run_id, execution_date, state
-        FROM dag_run
-        WHERE state = 'failed' AND execution_date BETWEEN :start_time AND :end_time
-        """
-    )
-    # if include_exceed_max_tries is True, means we want to include the runs that exceed max tries
+    session = Session()    # Query the database for failed runs
     if include_exceed_max_tries:
+        query = text(
+            """
+            SELECT DISTINCT dr.dag_id, dr.run_id, dr.execution_date, dr.state
+            FROM dag_run dr
+            JOIN task_instance ti ON dr.dag_id = ti.dag_id AND dr.run_id = ti.run_id
+            WHERE dr.state = 'failed' 
+                AND dr.execution_date BETWEEN :start_time AND :end_time
+                AND ti.try_number > ti.max_tries 
+                AND ti.try_number > 0
+            """
+        )
+    else:
         query = text(
             """
             SELECT dag_id, run_id, execution_date, state
             FROM dag_run
-            WHERE (state = 'failed' OR state = 'up_for_retry') AND execution_date BETWEEN :start_time AND :end_time
+            WHERE state = 'failed' AND execution_date BETWEEN :start_time AND :end_time
             """
         )
     result = session.execute(query, {"start_time": start_time, "end_time": end_time})
