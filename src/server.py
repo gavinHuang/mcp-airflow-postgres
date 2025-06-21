@@ -21,10 +21,13 @@ async def failed_runs(start_time, end_time, include_exceed_max_tries:bool=False)
             SELECT DISTINCT dr.dag_id, dr.run_id, dr.execution_date, dr.state
             FROM dag_run dr
             JOIN task_instance ti ON dr.dag_id = ti.dag_id AND dr.run_id = ti.run_id
-            WHERE dr.state = 'failed' 
-                AND dr.execution_date BETWEEN :start_time AND :end_time
-                AND ti.try_number > ti.max_tries 
-                AND ti.try_number > 0
+            WHERE dr.execution_date BETWEEN :start_time AND :end_time
+            AND (
+                dr.state = 'failed' 
+                or (
+                    ti.try_number > ti.max_tries AND ti.try_number > 0
+                )
+            )
             """
         )
     else:
